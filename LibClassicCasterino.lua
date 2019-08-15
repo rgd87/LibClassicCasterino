@@ -305,11 +305,24 @@ classCasts = {
     [10207] = 1.5, -- Scorch
     [25304] = 3, -- Frostbolt
 
+    [10876] = 3, -- Mana Burn
+    [10955] = 1.5, -- Shackle Undead
+    [10917] = 1.5, -- Flash Heal
+    [25314] = 3, -- Greater Heal
+    [6064] = 3, -- Heal
+    [15261] = 3.5, -- Holy Fire
+    [2053] = 2.5, -- Lesser Heal
+    [25316] = 3, -- Prayer of Healing
+    [20770] = 10, -- Resurrection
+    [10934] = 2.5, -- Smite
+    [10947] = 1.5, -- Mind Blast
+    [10912] = 3, -- Mind Control
+
 
     [2060] = true, -- Greater Heal
 }
 
-classChannels = { -- from ClassicCastbars
+classChannels = {
     -- [15407] = 3, -- Mind Flay
 
     [746] = 7,      -- First Aid
@@ -333,8 +346,8 @@ classChannels = { -- from ClassicCastbars
 
     -- PRIEST
     [15407] = 3,    -- Mind Flay
-    [2096] = 60,     -- Mind Vision
-    [605] = 3,        -- Mind Control
+    [2096] = 60,    -- Mind Vision
+    [10912] = 3,    -- Mind Control
 
     -- WARLOCK
     [126] = 45,       -- Eye of Kilrogg
