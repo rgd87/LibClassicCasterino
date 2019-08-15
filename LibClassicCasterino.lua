@@ -342,6 +342,7 @@ classCasts = {
 
     [11605] = 1.5, -- Slam
 
+    [20904] = 3, -- Aimed Shot
     [1002] = 2, -- Eyes of the Beast
     [2641] = 5, -- Dismiss pet
     [982] = 10, -- Revive Pet
