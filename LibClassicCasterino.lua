@@ -152,6 +152,10 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             CastStop(srcGUID, "CAST", "FAILED")
 
     elseif eventType == "SPELL_CAST_SUCCESS" then
+            if isSrcPlayer and classChannels[spellID] then
+                -- SPELL_CAST_SUCCESS can come right after AURA_APPLIED, so ignoring it
+                return
+            end
             if not isSrcPlayer then
                 local castUID = makeCastUID(srcGUID, spellName)
                 local cachedTime = castTimeCache[castUID]
@@ -250,32 +254,38 @@ function callbacks.OnUnused()
     f:UnregisterAllEvents()
 end
 
-talentDecreased = { -- from ClassicCastbars
-    [403] = 1,        -- Lightning Bolt
-    [421] = 1,        -- Chain Lightning
-    [6353] = 2,       -- Soul Fire
-    [116] = 0.5,      -- Frostbolt
-    [133] = 0.5,      -- Fireball
-    [686] = 0.5,      -- Shadow Bolt
-    [348] = 0.5,      -- Immolate
-    [331] = 0.5,      -- Healing Wave
-    [585] = 0.5,      -- Smite
-    [14914] = 0.5,    -- Holy Fire
-    [2054] = 0.5,     -- Heal
-    [25314] = 0.5,    -- Greater Heal
-    [8129] = 0.5,     -- Mana Burn
-    [5176] = 0.5,     -- Wrath
-    [2912] = 0.5,     -- Starfire
-    [5185] = 0.5,     -- Healing Touch
-    [2645] = 2,       -- Ghost Wolf
+talentDecreased = {
+    [25311] = 0.8,    -- Corruption (while leveling)
+    [17924] = 2,       -- Soul Fire
+    [25307] = 0.5,      -- Shadow Bolt
+    [25309] = 0.5,      -- Immolate
     [691] = 4,        -- Summon Felhunter
     [688] = 4,        -- Summon Imp
     [697] = 4,        -- Summon Voidwalker
     [712] = 4,        -- Summon Succubus
+
+    [15208] = 1,        -- Lightning Bolt
+    [10605] = 1,        -- Chain Lightning
+    [25357] = 0.5,      -- Healing Wave
+    [2645] = 2,       -- Ghost Wolf
+
+    [25304] = 0.5,      -- Frostbolt
+    [25306] = 0.5,      -- Fireball
+
+
+    [10934] = 0.5,      -- Smite
+    [15261] = 0.5,    -- Holy Fire
+    [6064] = 0.5,     -- Heal
+    [25314] = 0.5,    -- Greater Heal
+    [10876] = 0.5,     -- Mana Burn
+
+    [9912] = 0.5,     -- Wrath
+    [25298] = 0.5,     -- Starfire
+    [25297] = 0.5,     -- Healing Touch
 }
 
 classCasts = {
-    -- [25311] = true, -- Corruption
+    [25311] = 2, -- Corruption
     [6215] = 1.5, -- Fear
     [17928] = 2, -- Howl of Terror
     [18647] = 1.5, -- Banish
@@ -297,6 +307,7 @@ classCasts = {
     [17727] = 5, -- Create Spellstone (Greater)
     [17728] = 5, -- Create Spellstone (Major)
     [11726] = 3, -- Enslave Demon
+    [126] = 5, -- Eye of Kilrogg
     [1122] = 2, -- Inferno
     [23161] = 3, -- Summon Dreadsteed
     [5784] = 3, -- Summon Felsteed
@@ -304,7 +315,7 @@ classCasts = {
     [688] = 10, -- Summon Imp
     [697] = 10, -- Summon Voidwalker
     [712] = 10, -- Summon Succubus
-    [25309] = 1.5, -- Immolate
+    [25309] = 2, -- Immolate
     [17923] = 1.5, -- Searing Pain
     [25307] = 3, -- Shadow Bolt
     [17924] = 4, -- Soul Fire
@@ -375,8 +386,12 @@ classCasts = {
     [982] = 10, -- Revive Pet
     [14327] = 1.5, -- Scare Beast
 
+    [8690] = 10, -- Hearthstone
+    [4068] = 1, -- Iron Grenade
 
-    [2060] = true, -- Greater Heal
+    -- Munts do not generate SPELL_CAST_START
+    -- [8394] = 3, -- Striped Frostsaber
+    -- [10793] = 3, -- Striped Nightsaber
 }
 
 classChannels = {
@@ -392,11 +407,11 @@ classChannels = {
     [9863] = 9.5,      -- Tranquility
 
     -- HUNTER
-    -- [6197] = 60,     -- Eagle Eye
+    [6197] = 60,     -- Eagle Eye
     [13544] = 5,     -- Mend Pet
     [1515] = 20,     -- Tame Beast
     [1002] = 60,     -- Eyes of the Beast
-    [14295] = 6,      -- Volley
+    [14295] = 6,     -- Volley
 
     -- MAGE
     [25345] = 5,     -- Arcane Missiles
