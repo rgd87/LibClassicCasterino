@@ -327,6 +327,16 @@ classCasts = {
     [13819] = 3, -- Summon Warhorse
     [10326] = 1.5, -- Turn Undead
 
+    [10605] = 2.5, -- Chain Lightning
+    [15208] = 3, -- Lightning Bolt
+    [556] = 10, -- Astral Recall
+    [6196] = 2, -- Far Sight
+    [2645] = 3, -- Ghost Wolf
+    [20777] = 10, -- Ancestral Spirit
+    [10623] = 2.5, -- Chain Heal
+    [25357] = 3, -- Healing Wave
+    [10468] = 1.5, -- Lesser Healing Wave
+
 
     [2060] = true, -- Greater Heal
 }
