@@ -318,6 +318,15 @@ classCasts = {
     [10947] = 1.5, -- Mind Blast
     [10912] = 3, -- Mind Control
 
+    [19943] = 1.5, -- Flash of Light
+    [24239] = 1, -- Hammer of Wrath
+    [25292] = 2.5, -- Holy Light
+    [10318] = 2, -- Holy Wrath
+    [20773] = 10, -- Redemption
+    [23214] = 3, -- Summon Charger
+    [13819] = 3, -- Summon Warhorse
+    [10326] = 1.5, -- Turn Undead
+
 
     [2060] = true, -- Greater Heal
 }
