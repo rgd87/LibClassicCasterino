@@ -218,8 +218,32 @@ function lib:UnitChannelInfo(unit)
     end
 end
 
+
+local Passthrough = function(self, event, unit)
+    if unit == "player" then
+        callbacks:Fire(event, unit)
+    end
+end
+f.UNIT_SPELLCAST_START = Passthrough
+f.UNIT_SPELLCAST_DELAYED = Passthrough
+f.UNIT_SPELLCAST_STOP = Passthrough
+f.UNIT_SPELLCAST_FAILED = Passthrough
+f.UNIT_SPELLCAST_INTERRUPTED = Passthrough
+f.UNIT_SPELLCAST_CHANNEL_START = Passthrough
+f.UNIT_SPELLCAST_CHANNEL_UPDATE = Passthrough
+f.UNIT_SPELLCAST_CHANNEL_STOP = Passthrough
+
 function callbacks.OnUsed()
     f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+
+    f:RegisterEvent("UNIT_SPELLCAST_START")
+    f:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+    f:RegisterEvent("UNIT_SPELLCAST_STOP")
+    f:RegisterEvent("UNIT_SPELLCAST_FAILED")
+    f:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+    f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+    f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+    f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 end
 
 function callbacks.OnUnused()
