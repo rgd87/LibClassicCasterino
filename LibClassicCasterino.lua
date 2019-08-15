@@ -282,6 +282,28 @@ classCasts = {
     [25307] = 3, -- Shadow Bolt
     [17924] = 4, -- Soul Fire
 
+    [9853] = 1.5, -- Entangling Roots
+    [18658] = 1.5, -- Hibernate
+    [9901] = 1.5, -- Soothe Animal
+    [25298] = 3.5, -- Starfire
+    [18960] = 10, -- Teleport: Moonglade
+    [9912] = 2, -- Wrath
+    [25297] = 3.5, -- Healing Touch
+    [20748] = 2, -- Rebirth
+    [9858] = 2, -- Regrowth
+
+    [28612] = 3, -- Conjure Food
+    [759] = 3, -- Conjure Mana Agate
+    [10053] = 3, -- Conjure Mana Citrine
+    [3552] = 3, -- Conjure Mana Jade
+    [10054] = 3, -- Conjure Mana Ruby
+    [10140] = 3, -- Conjure Water
+    [12826] = 1.5, -- Polymorph
+    [28270] = 1.5, -- Polymorph: Cow
+    [25306] = 3.5, -- Fireball
+    [10216] = 3, -- Flamestrike
+    [10207] = 1.5, -- Scorch
+    [25304] = 3, -- Frostbolt
 
 
     [2060] = true, -- Greater Heal
@@ -296,8 +318,8 @@ classChannels = { -- from ClassicCastbars
     [10797] = 6,    -- Starshards
 
     -- DRUID
-    [17401] = 9.5,  -- Hurricane
-    [740] = 9.5,      -- Tranquility
+    [17402] = 9.5,  -- Hurricane
+    [9863] = 9.5,      -- Tranquility
 
     -- HUNTER
     [6197] = 60,     -- Eagle Eye
@@ -305,8 +327,8 @@ classChannels = { -- from ClassicCastbars
     [1510] = 6,      -- Volley
 
     -- MAGE
-    [5143] = 4.5,    -- Arcane Missiles
-    [10] = 7.5,         -- Blizzard
+    [25345] = 5,    -- Arcane Missiles
+    [10187] = 8,         -- Blizzard
     [12051] = 8,     -- Evocation
 
     -- PRIEST
