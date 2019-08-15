@@ -30,6 +30,7 @@ local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
 local AllUnitIDs
 local classCasts
 local classChannels
+local talentDecreased
 
 f:SetScript("OnEvent", function(self, event, ...)
     return self[event](self, event, ...)
@@ -74,6 +75,10 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
     local _, _, icon, castTime = GetSpellInfo(spellID)
     if castType == "CHANNEL" then
         castTime = classChannels[spellID]*1000
+        local decreased = talentDecreased[spellID]
+        if decreased then
+            castTime = castTime - decreased
+        end
     end
     if overrideCastTime then
         castTime = overrideCastTime
@@ -218,6 +223,29 @@ function callbacks.OnUnused()
     f:UnregisterAllEvents()
 end
 
+talentDecreased = { -- from ClassicCastbars
+    [403] = 1,        -- Lightning Bolt
+    [421] = 1,        -- Chain Lightning
+    [6353] = 2,       -- Soul Fire
+    [116] = 0.5,      -- Frostbolt
+    [133] = 0.5,      -- Fireball
+    [686] = 0.5,      -- Shadow Bolt
+    [348] = 0.5,      -- Immolate
+    [331] = 0.5,      -- Healing Wave
+    [585] = 0.5,      -- Smite
+    [14914] = 0.5,    -- Holy Fire
+    [2054] = 0.5,     -- Heal
+    [25314] = 0.5,    -- Greater Heal
+    [8129] = 0.5,     -- Mana Burn
+    [5176] = 0.5,     -- Wrath
+    [2912] = 0.5,     -- Starfire
+    [5185] = 0.5,     -- Healing Touch
+    [2645] = 2,       -- Ghost Wolf
+    [691] = 4,        -- Summon Felhunter
+    [688] = 4,        -- Summon Imp
+    [697] = 4,        -- Summon Voidwalker
+    [712] = 4,        -- Summon Succubus
+}
 
 classCasts = {
     [2060] = true, -- Greater Heal
