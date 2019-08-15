@@ -428,7 +428,7 @@ for id in pairs(classChannels) do
 end
 
 AllUnitIDs = {
-    "player",
+    -- "player",
     "target",
     "targettarget",
     "pet",
