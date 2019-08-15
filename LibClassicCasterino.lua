@@ -248,6 +248,42 @@ talentDecreased = { -- from ClassicCastbars
 }
 
 classCasts = {
+    -- [25311] = true, -- Corruption
+    [6215] = 1.5, -- Fear
+    [17928] = 2, -- Howl of Terror
+    [18647] = 1.5, -- Banish
+    [6366] = 3, -- Create Firestone (Lesser)
+    [17951] = 3, -- Create Firestone
+    [17952] = 3, -- Create Firestone (Greater)
+    [17953] = 3, -- Create Firestone (Major)
+    [28023] = 3, -- Create Healthstone
+    [11729] = 3, -- Create Healthstone (Greater)
+    [6202] = 3, -- Create Healthstone (Lesser)
+    [11730] = 3, -- Create Healthstone (Major)
+    [6201] = 3, -- Create Healthstone (Minor)
+    [20755] = 3, -- Create Soulstone
+    [20756] = 3, -- Create Soulstone (Greater)
+    [20752] = 3, -- Create Soulstone (Lesser)
+    [20757] = 3, -- Create Soulstone (Major)
+    [693] = 3, -- Create Soulstone (Minor)
+    [2362] = 5, -- Create Spellstone
+    [17727] = 5, -- Create Spellstone (Greater)
+    [17728] = 5, -- Create Spellstone (Major)
+    [11726] = 3, -- Enslave Demon
+    [1122] = 2, -- Inferno
+    [23161] = 3, -- Summon Dreadsteed
+    [5784] = 3, -- Summon Felsteed
+    [691] = 10, -- Summon Felhunter
+    [688] = 10, -- Summon Imp
+    [697] = 10, -- Summon Voidwalker
+    [712] = 10, -- Summon Succubus
+    [25309] = 1.5, -- Immolate
+    [17923] = 1.5, -- Searing Pain
+    [25307] = 3, -- Shadow Bolt
+    [17924] = 4, -- Soul Fire
+
+
+
     [2060] = true, -- Greater Heal
 }
 
@@ -280,12 +316,12 @@ classChannels = { -- from ClassicCastbars
 
     -- WARLOCK
     [126] = 45,       -- Eye of Kilrogg
-    [689] = 4.5,      -- Drain Life
-    [5138] = 4.5,    -- Drain Mana
-    [1120] = 14.5,   -- Drain Soul
-    [5740] = 7.5,    -- Rain of Fire
-    [1949] = 15,     -- Hellfire
-    [755] = 10,       -- Health Funnel
+    [11700] = 4.5,      -- Drain Life
+    [11704] = 4.5,    -- Drain Mana
+    [11675] = 14.5,   -- Drain Soul
+    [11678] = 7.5,    -- Rain of Fire
+    [11684] = 15,     -- Hellfire
+    [11695] = 10,       -- Health Funnel
 }
 
 for id in pairs(classCasts) do
