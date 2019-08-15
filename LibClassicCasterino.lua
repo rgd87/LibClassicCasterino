@@ -4,7 +4,7 @@ Author: d87
 --]================]
 
 
-local MAJOR, MINOR = "LibClassicCasterino", 1
+local MAJOR, MINOR = "LibClassicCasterino", 2
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -197,12 +197,30 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
 
 end
 
+-- local castTimeIncreases = {
+--     [1714] = 60,    -- Curse of Tongues (60%)
+--     [5760] = 60,    -- Mind-Numbing Poison (60%)
+-- }
+local function IsSlowedDown(unit)
+    for i=1,16 do
+        local name, _, _, _, _, _, _, _, _, spellID = UnitAura(unit, i, "HARMFUL")
+        if not name then return end
+        if spellID == 1714 or spellID == 5760 then
+            return true
+        end
+    end
+end
+
 function lib:UnitCastingInfo(unit)
     if unit == "player" then return CastingInfo() end
     local guid = UnitGUID(unit)
     local cast = casters[guid]
     if cast then
         local castType, name, icon, startTimeMS, endTimeMS, spellID = unpack(cast)
+        if IsSlowedDown(unit) then
+            local duration = endTimeMS - startTimeMS
+            endTimeMS = startTimeMS + duration * 1.6
+        end
         if castType == "CAST" and endTimeMS > GetTime()*1000 then
             local castID = nil
             return name, nil, icon, startTimeMS, endTimeMS, nil, castID, false, spellID
@@ -216,6 +234,7 @@ function lib:UnitChannelInfo(unit)
     local cast = casters[guid]
     if cast then
         local castType, name, icon, startTimeMS, endTimeMS, spellID = unpack(cast)
+        -- Curse of Tongues doesn't matter that much for channels, skipping
         if castType == "CHANNEL" and endTimeMS > GetTime()*1000 then
             return name, nil, icon, startTimeMS, endTimeMS, nil, false, spellID
         end
