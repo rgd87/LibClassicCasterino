@@ -101,4 +101,6 @@ globals = {
 	"UnitIsUnit",
 	"UnitExists",
 	"UnitIsFriend",
+	"CastingInfo",
+	"ChannelInfo",
 }
