@@ -337,45 +337,57 @@ classCasts = {
     [25357] = 3, -- Healing Wave
     [10468] = 1.5, -- Lesser Healing Wave
 
+    [1842] = 2, -- Disarm Trap
+    -- missing poison creation
+
+    [11605] = 1.5, -- Slam
+
+    [1002] = 2, -- Eyes of the Beast
+    [2641] = 5, -- Dismiss pet
+    [982] = 10, -- Revive Pet
+    [14327] = 1.5, -- Scare Beast
+
 
     [2060] = true, -- Greater Heal
 }
 
 classChannels = {
-    -- [15407] = 3, -- Mind Flay
+    -- [18807] = 3, -- Mind Flay
 
     [746] = 7,      -- First Aid
     [13278] = 4,    -- Gnomish Death Ray
     [20577] = 10,   -- Cannibalize
-    [10797] = 6,    -- Starshards
+    [19305] = 6,    -- Starshards
 
     -- DRUID
     [17402] = 9.5,  -- Hurricane
     [9863] = 9.5,      -- Tranquility
 
     -- HUNTER
-    [6197] = 60,     -- Eagle Eye
+    -- [6197] = 60,     -- Eagle Eye
+    [13544] = 5,     -- Mend Pet
+    [1515] = 20,     -- Tame Beast
     [1002] = 60,     -- Eyes of the Beast
-    [1510] = 6,      -- Volley
+    [14295] = 6,      -- Volley
 
     -- MAGE
-    [25345] = 5,    -- Arcane Missiles
-    [10187] = 8,         -- Blizzard
+    [25345] = 5,     -- Arcane Missiles
+    [10187] = 8,     -- Blizzard
     [12051] = 8,     -- Evocation
 
     -- PRIEST
-    [15407] = 3,    -- Mind Flay
+    [18807] = 3,    -- Mind Flay
     [2096] = 60,    -- Mind Vision
     [10912] = 3,    -- Mind Control
 
     -- WARLOCK
     [126] = 45,       -- Eye of Kilrogg
-    [11700] = 4.5,      -- Drain Life
+    [11700] = 4.5,    -- Drain Life
     [11704] = 4.5,    -- Drain Mana
     [11675] = 14.5,   -- Drain Soul
     [11678] = 7.5,    -- Rain of Fire
     [11684] = 15,     -- Hellfire
-    [11695] = 10,       -- Health Funnel
+    [11695] = 10,     -- Health Funnel
 }
 
 for id in pairs(classCasts) do
