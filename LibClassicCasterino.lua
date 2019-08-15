@@ -251,8 +251,41 @@ classCasts = {
     [2060] = true, -- Greater Heal
 }
 
-classChannels = {
-    [15407] = 3, -- Mind Flay
+classChannels = { -- from ClassicCastbars
+    -- [15407] = 3, -- Mind Flay
+
+    [746] = 7,      -- First Aid
+    [13278] = 4,    -- Gnomish Death Ray
+    [20577] = 10,   -- Cannibalize
+    [10797] = 6,    -- Starshards
+
+    -- DRUID
+    [17401] = 9.5,  -- Hurricane
+    [740] = 9.5,      -- Tranquility
+
+    -- HUNTER
+    [6197] = 60,     -- Eagle Eye
+    [1002] = 60,     -- Eyes of the Beast
+    [1510] = 6,      -- Volley
+
+    -- MAGE
+    [5143] = 4.5,    -- Arcane Missiles
+    [10] = 7.5,         -- Blizzard
+    [12051] = 8,     -- Evocation
+
+    -- PRIEST
+    [15407] = 3,    -- Mind Flay
+    [2096] = 60,     -- Mind Vision
+    [605] = 3,        -- Mind Control
+
+    -- WARLOCK
+    [126] = 45,       -- Eye of Kilrogg
+    [689] = 4.5,      -- Drain Life
+    [5138] = 4.5,    -- Drain Mana
+    [1120] = 14.5,   -- Drain Soul
+    [5740] = 7.5,    -- Rain of Fire
+    [1949] = 15,     -- Hellfire
+    [755] = 10,       -- Health Funnel
 }
 
 for id in pairs(classCasts) do
