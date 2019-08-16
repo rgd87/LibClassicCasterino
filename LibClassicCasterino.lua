@@ -4,7 +4,7 @@ Author: d87
 --]================]
 
 
-local MAJOR, MINOR = "LibClassicCasterino", 2
+local MAJOR, MINOR = "LibClassicCasterino", 3
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -28,10 +28,10 @@ local CastingInfo = CastingInfo
 local ChannelInfo = ChannelInfo
 
 local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
-local AllUnitIDs
 local classCasts
 local classChannels
 local talentDecreased
+local FireToUnits
 
 f:SetScript("OnEvent", function(self, event, ...)
     return self[event](self, event, ...)
@@ -56,14 +56,6 @@ local refreshCastTable = function(tbl, ...)
     local numArgs = select("#", ...)
     for i=1, numArgs do
         tbl[i] = select(i, ...)
-    end
-end
-
-local function FireToUnits(event, guid, ...)
-    for _, unit in ipairs(AllUnitIDs) do
-        if UnitGUID(unit) == guid then
-            callbacks:Fire(event, unit, ...)
-        end
     end
 end
 
@@ -267,6 +259,11 @@ function callbacks.OnUsed()
     f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
     f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
     f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+
+    -- for unit lookup
+    f:RegisterEvent("GROUP_ROSTER_UPDATE")
+    f:RegisterEvent("NAME_PLATE_UNIT_ADDED")
+    f:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 end
 
 function callbacks.OnUnused()
@@ -461,69 +458,64 @@ for id in pairs(classChannels) do
     -- AddSpellNameRecognition(id)
 end
 
-AllUnitIDs = {
+local partyGUIDtoUnit = {}
+local raidGUIDtoUnit = {}
+local nameplateUnits = {}
+local commonUnits = {
     -- "player",
     "target",
     "targettarget",
     "pet",
-    "party1", "party1pet",
-    "party2", "party2pet",
-    "party3", "party3pet",
-    "party4", "party4pet",
-    "raid1",
-    "raid2",
-    "raid3",
-    "raid4",
-    "raid5",
-    "raid6",
-    "raid7",
-    "raid8",
-    "raid9",
-    "raid10",
-    "raid11",
-    "raid12",
-    "raid13",
-    "raid14",
-    "raid15",
-    "raid16",
-    "raid17",
-    "raid18",
-    "raid19",
-    "raid20",
-    "raid21",
-    "raid22",
-    "raid23",
-    "raid24",
-    "raid25",
-    "raid26",
-    "raid27",
-    "raid28",
-    "raid29",
-    "raid30",
-    "raid31",
-    "raid32",
-    "raid33",
-    "raid34",
-    "raid35",
-    "raid36",
-    "raid37",
-    "raid38",
-    "raid39",
-    "raid40",
-
-    "nameplate1",
-    "nameplate2",
-    "nameplate3",
-    "nameplate4",
-    "nameplate5",
-    "nameplate6",
-    "nameplate7",
-    "nameplate8",
-    "nameplate9",
-    "nameplate10",
-    "nameplate11",
-    "nameplate12",
-    "nameplate13",
-    "nameplate14",
-    "nameplate15",
 }
+
+function f:NAME_PLATE_UNIT_ADDED(event, unit)
+    nameplateUnits[unit] = true
+end
+
+
+function f:NAME_PLATE_UNIT_REMOVED(event, unit)
+    nameplateUnits[unit] = nil
+end
+
+function f:GROUP_ROSTER_UPDATE()
+    table.wipe(partyGUIDtoUnit)
+    table.wipe(raidGUIDtoUnit)
+    if IsInGroup() then
+        for i=1,4 do
+            local unit = "party"..i
+            local guid = UnitGUID(unit)
+            partyGUIDtoUnit[guid] = unit
+        end
+    end
+    if IsInRaid() then
+        for i=1,40 do
+            local unit = "raid"..i
+            local guid = UnitGUID(unit)
+            raidGUIDtoUnit[guid] = unit
+        end
+    end
+end
+
+FireToUnits = function(event, guid, ...)
+    for _, unit in ipairs(commonUnits) do
+        if UnitGUID(unit) == guid then
+            callbacks:Fire(event, unit, ...)
+        end
+    end
+
+    local partyUnit = partyGUIDtoUnit[guid]
+    if partyUnit then
+        callbacks:Fire(event, partyUnit, ...)
+    end
+
+    local raidUnit = raidGUIDtoUnit[guid]
+    if raidUnit then
+        callbacks:Fire(event, raidUnit, ...)
+    end
+
+    for unit in pairs(nameplateUnits) do
+        if UnitGUID(unit) == guid then
+            callbacks:Fire(event, unit, ...)
+        end
+    end
+end
