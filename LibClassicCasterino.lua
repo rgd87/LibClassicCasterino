@@ -4,7 +4,7 @@ Author: d87
 --]================]
 
 
-local MAJOR, MINOR = "LibClassicCasterino", 4
+local MAJOR, MINOR = "LibClassicCasterino", 5
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
