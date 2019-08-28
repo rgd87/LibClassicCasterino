@@ -4,7 +4,7 @@ Author: d87
 --]================]
 
 
-local MAJOR, MINOR = "LibClassicCasterino", 8
+local MAJOR, MINOR = "LibClassicCasterino", 9
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -71,6 +71,7 @@ end
 
 local makeCastUID = function(guid, spellName)
     local _, _, _, _, _, npcID = strsplit("-", guid);
+    npcID = npcID or "Unknown"
     return npcID..spellName
 end
 
