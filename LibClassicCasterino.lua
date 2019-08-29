@@ -26,6 +26,7 @@ local bit_band = bit.band
 local GetTime = GetTime
 local CastingInfo = CastingInfo
 local ChannelInfo = ChannelInfo
+local UnitLevel = UnitLevel
 
 local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
 local classCasts
@@ -73,6 +74,54 @@ local makeCastUID = function(guid, spellName)
     local _, _, _, _, _, npcID = strsplit("-", guid);
     npcID = npcID or "Unknown"
     return npcID..spellName
+end
+
+local CastTimeByCharacterLevel = {}
+local GUIDToUnit = {}
+
+local function UpdatePlayerSpellCastTime(srcGUID, spellID, spellName)
+  if not spellID then return end
+
+  local unit = GUIDToUnit[srcGUID]
+  if unit then
+    local spell_info = CastTimeByCharacterLevel[spellID]
+    if not spell_info then
+      spell_info = {}
+      CastTimeByCharacterLevel[spellID] = spell_info
+    end
+
+    local unit_level = UnitLevel(unit)
+    if not spell_info[unit_level] then
+        local castUID = makeCastUID(srcGUID, spellName)
+        local restoredStartTime = castTimeCacheStartTimes[srcGUID..castUID]
+
+        if restoredStartTime then
+            local now = GetTime()
+            local castTime = now - restoredStartTime
+            spell_info[unit_level] = castTime
+        end
+    end
+  end
+end
+
+local function GetPlayerSpellCastTime(srcGUID, spellID, spellName, default_time)
+  local cast_time
+
+  local spell_info = CastTimeByCharacterLevel[spellID]
+  if spell_info then
+    local unit = GUIDToUnit[srcGUID]
+    if unit then
+      cast_time = spell_info[UnitLevel(unit)]
+    end
+  end
+
+  if not cast_time then
+    local castUID = makeCastUID(srcGUID, spellName)
+    castTimeCacheStartTimes[srcGUID..castUID] = GetTime()
+    cast_time = default_time[spellID]
+  end
+
+  return cast_time
 end
 
 local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime )
@@ -135,9 +184,9 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
     end
     if eventType == "SPELL_CAST_START" then
         if isSrcPlayer then
-            local isCasting = classCasts[spellID]
-            if isCasting then
-                CastStart(srcGUID, "CAST", spellName, spellID)
+            local cast_time = GetPlayerSpellCastTime(srcGUID, spellID, spellName, classCasts)
+            if cast_time then
+                CastStart(srcGUID, "CAST", spellName, spellID, cast_time * 1000)
             end
         else
             local castUID = makeCastUID(srcGUID, spellName)
@@ -158,25 +207,28 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             CastStop(srcGUID, "CAST", "FAILED")
 
     elseif eventType == "SPELL_CAST_SUCCESS" then
-            if isSrcPlayer and classChannels[spellID] then
+          if isSrcPlayer then
+              if classChannels[spellID] then
                 -- SPELL_CAST_SUCCESS can come right after AURA_APPLIED, so ignoring it
                 return
-            end
-            if not isSrcPlayer then
-                local castUID = makeCastUID(srcGUID, spellName)
-                local cachedTime = castTimeCache[castUID]
-                if not cachedTime then
-                    local restoredStartTime = castTimeCacheStartTimes[srcGUID..castUID]
-                    if restoredStartTime then
-                        local now = GetTime()
-                        local castTime = now - restoredStartTime
-                        if castTime < 10 then
-                            castTimeCache[castUID] = castTime
-                        end
-                    end
-                end
-            end
-            CastStop(srcGUID, nil, "STOP")
+              end
+              UpdatePlayerSpellCastTime(srcGUID, spellID, spellName)
+          end
+          if not isSrcPlayer then
+              local castUID = makeCastUID(srcGUID, spellName)
+              local cachedTime = castTimeCache[castUID]
+              if not cachedTime then
+                  local restoredStartTime = castTimeCacheStartTimes[srcGUID..castUID]
+                  if restoredStartTime then
+                      local now = GetTime()
+                      local castTime = now - restoredStartTime
+                      if castTime < 10 then
+                          castTimeCache[castUID] = castTime
+                      end
+                  end
+              end
+          end
+          CastStop(srcGUID, nil, "STOP")
 
     elseif eventType == "SPELL_INTERRUPT" then
 
@@ -189,7 +241,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             eventType == "SPELL_AURA_APPLIED_DOSE"
     then
         if isSrcPlayer then
-            local isChanneling = classChannels[spellID]
+            local isChanneling = GetPlayerSpellCastTime(srcGUID, spellID, spellName, classChannels)
             if isChanneling then
                 CastStart(srcGUID, "CHANNEL", spellName, spellID)
             end
@@ -199,6 +251,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             local isChanneling = classChannels[spellID]
             if isChanneling then
                 CastStop(srcGUID, "CHANNEL", "STOP")
+                UpdatePlayerSpellCastTime(srcGUID, spellID, spellName)
             end
         end
     end
@@ -476,7 +529,6 @@ end
 
 local partyGUIDtoUnit = {}
 local raidGUIDtoUnit = {}
-local nameplateUnits = {}
 local commonUnits = {
     -- "player",
     "target",
@@ -485,12 +537,12 @@ local commonUnits = {
 }
 
 function f:NAME_PLATE_UNIT_ADDED(event, unit)
-    nameplateUnits[unit] = true
+  GUIDToUnit[UnitGUID(unit)] = unit
 end
 
 
 function f:NAME_PLATE_UNIT_REMOVED(event, unit)
-    nameplateUnits[unit] = nil
+  GUIDToUnit[UnitGUID(unit)] = nil
 end
 
 function f:GROUP_ROSTER_UPDATE()
@@ -533,10 +585,9 @@ FireToUnits = function(event, guid, ...)
         callbacks:Fire(event, raidUnit, ...)
     end
 
-    for unit in pairs(nameplateUnits) do
-        if UnitGUID(unit) == guid then
-            callbacks:Fire(event, unit, ...)
-        end
+    local unit = GUIDToUnit[guid]
+    if unit then
+        callbacks:Fire(event, unit, ...)
     end
 end
 
