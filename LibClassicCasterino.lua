@@ -304,7 +304,6 @@ talentDecreased = {
     [25304] = 0.5,      -- Frostbolt
     [25306] = 0.5,      -- Fireball
 
-
     [10934] = 0.5,      -- Smite
     [15261] = 0.5,    -- Holy Fire
     [6064] = 0.5,     -- Heal
@@ -427,9 +426,7 @@ classCasts = {
 }
 
 classChannels = {
-    -- [18807] = 3, -- Mind Flay
-
-    [746] = 7,      -- First Aid
+    [746] = 6,      -- First Aid
     [13278] = 4,    -- Gnomish Death Ray
     [20577] = 10,   -- Cannibalize
     [19305] = 6,    -- Starshards
@@ -476,7 +473,7 @@ end
 
 local partyGUIDtoUnit = {}
 local raidGUIDtoUnit = {}
-local nameplateUnits = {}
+local nameplateGUIDtoUnit = {}
 local commonUnits = {
     -- "player",
     "target",
@@ -485,12 +482,14 @@ local commonUnits = {
 }
 
 function f:NAME_PLATE_UNIT_ADDED(event, unit)
-    nameplateUnits[unit] = true
+    local unitGUID = UnitGUID(unit)
+    nameplateGUIDtoUnit[unitGUID] = unit
 end
 
 
 function f:NAME_PLATE_UNIT_REMOVED(event, unit)
-    nameplateUnits[unit] = nil
+    local unitGUID = UnitGUID(unit) -- Unit still exists at this point
+    nameplateGUIDtoUnit[unitGUID] = nil
 end
 
 function f:GROUP_ROSTER_UPDATE()
@@ -533,10 +532,9 @@ FireToUnits = function(event, guid, ...)
         callbacks:Fire(event, raidUnit, ...)
     end
 
-    for unit in pairs(nameplateUnits) do
-        if UnitGUID(unit) == guid then
-            callbacks:Fire(event, unit, ...)
-        end
+    local nameplateUnit = nameplateGUIDtoUnit[guid]
+    if nameplateUnit then
+        callbacks:Fire(event, nameplateUnit, ...)
     end
 end
 
