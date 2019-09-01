@@ -4,7 +4,7 @@ Author: d87
 --]================]
 
 
-local MAJOR, MINOR = "LibClassicCasterino", 11
+local MAJOR, MINOR = "LibClassicCasterino", 12
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -19,15 +19,19 @@ local callbacks = lib.callbacks
 lib.casters = lib.casters or {} -- setmetatable({}, { __mode = "v" })
 local casters = lib.casters
 
--- local guidsToPurge = {}
+lib.movecheckGUIDs = lib.movecheckGUIDs or {}
+local movecheckGUIDs = lib.movecheckGUIDs
+local MOVECHECK_TIMEOUT = 4
 
 local UnitGUID = UnitGUID
 local bit_band = bit.band
 local GetTime = GetTime
 local CastingInfo = CastingInfo
 local ChannelInfo = ChannelInfo
+local GetUnitSpeed = GetUnitSpeed
 
 local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
+local COMBATLOG_OBJECT_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
 local classCasts
 local classChannels
 local talentDecreased
@@ -76,7 +80,7 @@ local makeCastUID = function(guid, spellName)
     return npcID..spellName
 end
 
-local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime )
+local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime, isSrcEnemyPlayer )
     local _, _, icon, castTime = GetSpellInfo(spellID)
     if castType == "CHANNEL" then
         castTime = classChannels[spellID]*1000
@@ -99,6 +103,9 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
         casters[srcGUID] = { castType, spellName, icon, startTime, endTime, spellID }
     end
 
+    if isSrcEnemyPlayer then
+        movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
+    end
 
     if castType == "CAST" then
         FireToUnits("UNIT_SPELLCAST_START", srcGUID)
@@ -113,6 +120,7 @@ local function CastStop(srcGUID, castType, suffix )
         castType = castType or currentCast[1]
 
         casters[srcGUID] = nil
+        movecheckGUIDs[srcGUID] = nil
 
         if castType == "CAST" then
             local event = "UNIT_SPELLCAST_"..suffix
@@ -138,7 +146,8 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
         if isSrcPlayer then
             local isCasting = classCasts[spellID]
             if isCasting then
-                CastStart(srcGUID, "CAST", spellName, spellID)
+                local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
+                CastStart(srcGUID, "CAST", spellName, spellID, nil, not isSrcFriendlyPlayer)
             end
         else
             local castUID = makeCastUID(srcGUID, spellName)
@@ -197,7 +206,8 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
 
             local isChanneling = classChannels[spellID]
             if isChanneling then
-                CastStart(srcGUID, "CHANNEL", spellName, spellID)
+                local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
+                CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
             end
         end
     elseif eventType == "SPELL_AURA_REMOVED" then
@@ -614,8 +624,50 @@ crowdControlAuras = { -- from ClassicCastbars
     [GetSpellInfo(26108)] = true,      -- Glimpse of Madness
 }
 
+------------------------------
+-- Cast Interruption Checker
+------------------------------
 
+-- There's an issue that if you start a cast and immediately after cancel it, CAST_FAILED event won't ever come for it
+-- This leads to zombie casts that have to run until completion
+-- So for 4s after non-friendly player controlled guid started a cast we're watching if it's moving and cancel
 
+do
+    local GetUnitForFreshGUID = function(guid)
+        local targetGUID = UnitGUID('target')
+        if guid == targetGUID then
+            return "target"
+        end
+
+        return nameplateGUIDtoUnit[guid]
+    end
+
+    f:SetScript("OnUpdate", function(self, elapsed)
+        local guid, timeout = next(movecheckGUIDs)
+        while guid ~= nil do
+            -- Removing while iterating here, but it doesn't matter
+
+            local unit = GetUnitForFreshGUID(guid)
+            if unit then
+                if GetUnitSpeed(unit) ~= 0 then
+                    CastStop(guid, nil, "FAILED")
+                    movecheckGUIDs[guid] = nil
+                    return
+                end
+            end
+
+            movecheckGUIDs[guid] = timeout - elapsed
+            if timeout - elapsed < 0 then
+                movecheckGUIDs[guid] = nil
+            end
+            -- print(guid, movecheckGUIDs[guid])
+
+            guid, timeout = next(movecheckGUIDs, guid)
+        end
+    end)
+end
+
+------------------------------
 
 if lib.NPCSpellsTimer then
     lib.NPCSpellsTimer:Cancel()
