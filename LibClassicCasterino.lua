@@ -4,7 +4,7 @@ Author: d87
 --]================]
 
 
-local MAJOR, MINOR = "LibClassicCasterino", 10
+local MAJOR, MINOR = "LibClassicCasterino", 11
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -31,6 +31,7 @@ local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
 local classCasts
 local classChannels
 local talentDecreased
+local crowdControlAuras
 local FireToUnits
 
 f:SetScript("OnEvent", function(self, event, ...)
@@ -189,6 +190,11 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             eventType == "SPELL_AURA_APPLIED_DOSE"
     then
         if isSrcPlayer then
+            if crowdControlAuras[spellName] then
+                CastStop(dstGUID, nil, "FAILED")
+                return
+            end
+
             local isChanneling = classChannels[spellID]
             if isChanneling then
                 CastStart(srcGUID, "CHANNEL", spellName, spellID)
@@ -537,6 +543,78 @@ FireToUnits = function(event, guid, ...)
         callbacks:Fire(event, nameplateUnit, ...)
     end
 end
+
+crowdControlAuras = { -- from ClassicCastbars
+    [GetSpellInfo(5211)] = true,       -- Bash
+    [GetSpellInfo(24394)] = true,      -- Intimidation
+    [GetSpellInfo(853)] = true,        -- Hammer of Justice
+    [GetSpellInfo(22703)] = true,      -- Inferno Effect (Summon Infernal)
+    [GetSpellInfo(408)] = true,        -- Kidney Shot
+    [GetSpellInfo(12809)] = true,      -- Concussion Blow
+    [GetSpellInfo(20253)] = true,      -- Intercept Stun
+    [GetSpellInfo(20549)] = true,      -- War Stomp
+    [GetSpellInfo(2637)] = true,       -- Hibernate
+    [GetSpellInfo(3355)] = true,       -- Freezing Trap
+    [GetSpellInfo(19386)] = true,      -- Wyvern Sting
+    [GetSpellInfo(118)] = true,        -- Polymorph
+    [GetSpellInfo(28271)] = true,      -- Polymorph: Turtle
+    [GetSpellInfo(28272)] = true,      -- Polymorph: Pig
+    [GetSpellInfo(20066)] = true,      -- Repentance
+    [GetSpellInfo(1776)] = true,       -- Gouge
+    [GetSpellInfo(6770)] = true,       -- Sap
+    [GetSpellInfo(1513)] = true,       -- Scare Beast
+    [GetSpellInfo(8122)] = true,       -- Psychic Scream
+    [GetSpellInfo(2094)] = true,       -- Blind
+    [GetSpellInfo(5782)] = true,       -- Fear
+    [GetSpellInfo(5484)] = true,       -- Howl of Terror
+    [GetSpellInfo(6358)] = true,       -- Seduction
+    [GetSpellInfo(5246)] = true,       -- Intimidating Shout
+    [GetSpellInfo(6789)] = true,       -- Death Coil
+    [GetSpellInfo(9005)] = true,       -- Pounce
+    [GetSpellInfo(1833)] = true,       -- Cheap Shot
+    [GetSpellInfo(16922)] = true,      -- Improved Starfire
+    [GetSpellInfo(19410)] = true,      -- Improved Concussive Shot
+    [GetSpellInfo(12355)] = true,      -- Impact
+    [GetSpellInfo(20170)] = true,      -- Seal of Justice Stun
+    [GetSpellInfo(15269)] = true,      -- Blackout
+    [GetSpellInfo(18093)] = true,      -- Pyroclasm
+    [GetSpellInfo(12798)] = true,      -- Revenge Stun
+    [GetSpellInfo(5530)] = true,       -- Mace Stun
+    [GetSpellInfo(19503)] = true,      -- Scatter Shot
+    [GetSpellInfo(605)] = true,        -- Mind Control
+    [GetSpellInfo(7922)] = true,       -- Charge Stun
+    [GetSpellInfo(18469)] = true,      -- Counterspell - Silenced
+    [GetSpellInfo(15487)] = true,      -- Silence
+    [GetSpellInfo(18425)] = true,      -- Kick - Silenced
+    [GetSpellInfo(24259)] = true,      -- Spell Lock
+    [GetSpellInfo(18498)] = true,      -- Shield Bash - Silenced
+
+    -- ITEMS
+    [GetSpellInfo(13327)] = true,      -- Reckless Charge
+    [GetSpellInfo(1090)] = true,       -- Sleep
+    [GetSpellInfo(5134)] = true,       -- Flash Bomb Fear
+    [GetSpellInfo(19821)] = true,      -- Arcane Bomb Silence
+    [GetSpellInfo(4068)] = true,       -- Iron Grenade
+    [GetSpellInfo(19769)] = true,      -- Thorium Grenade
+    [GetSpellInfo(13808)] = true,      -- M73 Frag Grenade
+    [GetSpellInfo(4069)] = true,       -- Big Iron Bomb
+    [GetSpellInfo(12543)] = true,      -- Hi-Explosive Bomb
+    [GetSpellInfo(4064)] = true,       -- Rough Copper Bomb
+    [GetSpellInfo(12421)] = true,      -- Mithril Frag Bomb
+    [GetSpellInfo(19784)] = true,      -- Dark Iron Bomb
+    [GetSpellInfo(4067)] = true,       -- Big Bronze Bomb
+    [GetSpellInfo(4066)] = true,       -- Small Bronze Bomb
+    [GetSpellInfo(4065)] = true,       -- Large Copper Bomb
+    [GetSpellInfo(13237)] = true,      -- Goblin Mortar
+    [GetSpellInfo(835)] = true,        -- Tidal Charm
+    [GetSpellInfo(13181)] = true,      -- Gnomish Mind Control Cap
+    [GetSpellInfo(12562)] = true,      -- The Big One
+    [GetSpellInfo(15283)] = true,      -- Stunning Blow (Weapon Proc)
+    [GetSpellInfo(56)] = true,         -- Stun (Weapon Proc)
+    [GetSpellInfo(26108)] = true,      -- Glimpse of Madness
+}
+
+
 
 
 if lib.NPCSpellsTimer then
