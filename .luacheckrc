@@ -105,4 +105,5 @@ globals = {
     "ChannelInfo",
     'IsInGroup',
     'IsInRaid',
+    "GetUnitSpeed",
 }
