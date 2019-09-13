@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 15
+local MAJOR, MINOR = "LibClassicCasterino", 16
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -31,8 +31,8 @@ local ChannelInfo = ChannelInfo
 local GetUnitSpeed = GetUnitSpeed
 local UnitIsUnit = UnitIsUnit
 
-local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
 local COMBATLOG_OBJECT_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
+local COMBATLOG_OBJECT_TYPE_PLAYER_OR_PET = COMBATLOG_OBJECT_TYPE_PLAYER + COMBATLOG_OBJECT_TYPE_PET
 local classCasts
 local classChannelsByAura
 local classChannelsByCast
@@ -141,7 +141,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
     dstGUID, dstName, dstFlags, dstFlags2,
     spellID, spellName, arg3, arg4, arg5 = CombatLogGetCurrentEventInfo()
 
-    local isSrcPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_TYPE_PLAYER) > 0
+    local isSrcPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_TYPE_PLAYER_OR_PET) > 0
     if isSrcPlayer and spellID == 0 then
         spellID = spellNameToID[spellName]
     end
@@ -379,6 +379,7 @@ classCasts = {
     [17923] = 1.5, -- Searing Pain
     [25307] = 3, -- Shadow Bolt
     [17924] = 4, -- Soul Fire
+    [6358] = 1.5, -- Seduction
 
     [9853] = 1.5, -- Entangling Roots
     [18658] = 1.5, -- Hibernate
@@ -486,6 +487,7 @@ classChannelsByAura = {
     [11678] = 8,    -- Rain of Fire
     [11684] = 15,     -- Hellfire
     [11695] = 10,     -- Health Funnel
+    [6358] = 15,    -- Seduction
 }
 
 classChannelsByCast = {
