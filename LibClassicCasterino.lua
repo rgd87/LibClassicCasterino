@@ -267,9 +267,9 @@ function lib:UnitChannelInfo(unit)
 end
 
 
-local Passthrough = function(self, event, unit)
+local Passthrough = function(self, event, unit, ...)
     if unit == "player" then
-        callbacks:Fire(event, unit)
+        callbacks:Fire(event, unit, ...)
     end
 end
 f.UNIT_SPELLCAST_START = Passthrough
