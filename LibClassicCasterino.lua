@@ -380,6 +380,7 @@ classCasts = {
     [25307] = 3, -- Shadow Bolt
     [17924] = 4, -- Soul Fire
     [6358] = 1.5, -- Seduction
+    [11763] = 2, -- Firebolt (Imp)
 
     [9853] = 1.5, -- Entangling Roots
     [18658] = 1.5, -- Hibernate
@@ -488,6 +489,7 @@ classChannelsByAura = {
     [11684] = 15,     -- Hellfire
     [11695] = 10,     -- Health Funnel
     [6358] = 15,    -- Seduction
+    [17854] = 10,   -- Consume Shadows (Voidwalker)
 }
 
 classChannelsByCast = {
