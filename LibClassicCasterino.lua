@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 14
+local MAJOR, MINOR = "LibClassicCasterino", 15
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -34,7 +34,8 @@ local UnitIsUnit = UnitIsUnit
 local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
 local COMBATLOG_OBJECT_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
 local classCasts
-local classChannels
+local classChannelsByAura
+local classChannelsByCast
 local talentDecreased
 local crowdControlAuras
 local FireToUnits
@@ -84,7 +85,8 @@ end
 local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime, isSrcEnemyPlayer )
     local _, _, icon, castTime = GetSpellInfo(spellID)
     if castType == "CHANNEL" then
-        castTime = classChannels[spellID]*1000
+        local channelDuration = classChannelsByAura[spellID] or classChannelsByCast[spellID]
+        castTime = channelDuration*1000
         local decreased = talentDecreased[spellID]
         if decreased then
             castTime = castTime - decreased
@@ -169,9 +171,19 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             CastStop(srcGUID, "CAST", "FAILED")
 
     elseif eventType == "SPELL_CAST_SUCCESS" then
-            if isSrcPlayer and classChannels[spellID] then
-                -- SPELL_CAST_SUCCESS can come right after AURA_APPLIED, so ignoring it
-                return
+            if isSrcPlayer then
+                if classChannelsByAura[spellID] then
+                    -- SPELL_CAST_SUCCESS can come right after AURA_APPLIED, so ignoring it
+                    return
+                elseif classChannelsByCast[spellID] then
+                    -- Channels fire SPELL_CAST_SUCCESS at their start
+                    local isChanneling = classChannelsByCast[spellID]
+                    if isChanneling then
+                        local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
+                        CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
+                    end
+                    return
+                end
             end
             if not isSrcPlayer then
                 local castUID = makeCastUID(srcGUID, spellName)
@@ -205,7 +217,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
                 return
             end
 
-            local isChanneling = classChannels[spellID]
+            local isChanneling = classChannelsByAura[spellID]
             if isChanneling then
                 local isSrcFriendlyPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
                 CastStart(srcGUID, "CHANNEL", spellName, spellID, nil, not isSrcFriendlyPlayer)
@@ -213,7 +225,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
         end
     elseif eventType == "SPELL_AURA_REMOVED" then
         if isSrcPlayer then
-            local isChanneling = classChannels[spellID]
+            local isChanneling = classChannelsByAura[spellID]
             if isChanneling then
                 CastStop(srcGUID, "CHANNEL", "STOP")
             end
@@ -442,15 +454,14 @@ classCasts = {
     -- [10793] = 3, -- Striped Nightsaber
 }
 
-classChannels = {
+classChannelsByAura = {
     [746] = 6,      -- First Aid
-    [13278] = 4,    -- Gnomish Death Ray
     [20577] = 10,   -- Cannibalize
     [19305] = 6,    -- Starshards
 
     -- DRUID
-    [17402] = 9.5,  -- Hurricane
-    [9863] = 9.5,      -- Tranquility
+    [17402] = 10,  -- Hurricane
+    [9863] = 10,      -- Tranquility
 
     -- HUNTER
     [6197] = 60,     -- Eagle Eye
@@ -459,8 +470,6 @@ classChannels = {
     [1002] = 60,     -- Eyes of the Beast
     [14295] = 6,     -- Volley
 
-    -- MAGE
-    [25345] = 5,     -- Arcane Missiles
     [10187] = 8,     -- Blizzard
     [12051] = 8,     -- Evocation
 
@@ -471,21 +480,30 @@ classChannels = {
 
     -- WARLOCK
     [126] = 45,       -- Eye of Kilrogg
-    [11700] = 4.5,    -- Drain Life
-    [11704] = 4.5,    -- Drain Mana
-    [11675] = 14.5,   -- Drain Soul
-    [11678] = 7.5,    -- Rain of Fire
+    [11700] = 5,    -- Drain Life
+    [11704] = 5,    -- Drain Mana
+    [11675] = 15,   -- Drain Soul
+    [11678] = 8,    -- Rain of Fire
     [11684] = 15,     -- Hellfire
     [11695] = 10,     -- Health Funnel
 }
 
+classChannelsByCast = {
+    [13278] = 4,    -- Gnomish Death Ray
+
+    -- MAGE
+    [25345] = 5,     -- Arcane Missiles
+}
+
+
 for id in pairs(classCasts) do
     spellNameToID[GetSpellInfo(id)] = id
-    -- AddSpellNameRecognition(id)
 end
-for id in pairs(classChannels) do
+for id in pairs(classChannelsByAura) do
     spellNameToID[GetSpellInfo(id)] = id
-    -- AddSpellNameRecognition(id)
+end
+for id in pairs(classChannelsByCast) do
+    spellNameToID[GetSpellInfo(id)] = id
 end
 
 local partyGUIDtoUnit = {}
