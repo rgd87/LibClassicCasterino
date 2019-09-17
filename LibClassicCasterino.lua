@@ -157,7 +157,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
             local cachedTime = castTimeCache[castUID]
             local spellID = NPCspellNameToID[spellName] -- just for the icon
             if not spellID then
-                spellID = 2050
+                spellID = 4036 -- Engineering Icon
             end
             if cachedTime then
                 CastStart(srcGUID, "CAST", spellName, spellID, cachedTime*1000)
