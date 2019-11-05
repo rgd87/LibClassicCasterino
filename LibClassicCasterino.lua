@@ -299,7 +299,7 @@ function lib:UnitCastingInfo(unit)
     local cast = casters[guid]
     if cast then
         local castType, name, icon, startTimeMS, endTimeMS, spellID = unpack(cast)
-        if castingAimedShot then
+        if castingAimedShot and spellID ~= 25294 then -- Multi-Shot spellID
             local haste = GetRangedHaste(unit)
             local duration = endTimeMS - startTimeMS
             endTimeMS = startTimeMS + duration/haste

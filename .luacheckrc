@@ -106,4 +106,6 @@ globals = {
     'IsInGroup',
     'IsInRaid',
     "GetUnitSpeed",
+    "UnitHealth",
+    "UnitHealthMax",
 }
