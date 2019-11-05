@@ -55,7 +55,9 @@ local castTimeCache = {}
 local castTimeCacheStartTimes = setmetatable({}, { __mode = "v" })
 
 local AIMED_SHOT = GetSpellInfo(19434)
+local MULTI_SHOT = GetSpellInfo(14290)
 local castingAimedShot = false
+local castingMultiShot = true
 local playerGUID = UnitGUID("player")
 
 --[[
@@ -122,6 +124,10 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
             movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
             callbacks:Fire("UNIT_SPELLCAST_START", "player")
         end
+        if srcGUID == playerGUID and spellName == MULTI_SHOT then
+            castingMultiShot = true
+            callbacks:Fire("UNIT_SPELLCAST_START", "player")
+        end
         FireToUnits("UNIT_SPELLCAST_START", srcGUID)
     else
         FireToUnits("UNIT_SPELLCAST_CHANNEL_START", srcGUID)
@@ -140,6 +146,10 @@ local function CastStop(srcGUID, castType, suffix )
             local event = "UNIT_SPELLCAST_"..suffix
             if srcGUID == playerGUID and castingAimedShot then
                 castingAimedShot = false
+                callbacks:Fire(event, "player")
+            end
+            if srcGUID == playerGUID and castingMultiShot then
+                castingMultiShot = false
                 callbacks:Fire(event, "player")
             end
             FireToUnits(event, srcGUID)
@@ -290,7 +300,7 @@ end
 
 function lib:UnitCastingInfo(unit)
     if UnitIsUnit(unit,"player") then
-        if not castingAimedShot then
+        if not castingAimedShot and not castingMultiShot then
             return CastingInfo()
         end
     end
@@ -303,13 +313,17 @@ function lib:UnitCastingInfo(unit)
             local duration = endTimeMS - startTimeMS
             endTimeMS = startTimeMS + duration/haste
         end
+        if castingMultiShot then
+            local duration = 200
+            endTimeMS = startTimeMS + duration
+        end
 
         local slowdown = GetCastSlowdown(unit)
         if slowdown ~= 1 then
             local duration = endTimeMS - startTimeMS
             endTimeMS = startTimeMS + duration * slowdown
         end
-        
+
         if castType == "CAST" and endTimeMS > GetTime()*1000 then
             local castID = nil
             return name, nil, icon, startTimeMS, endTimeMS, nil, castID, false, spellID
@@ -509,6 +523,8 @@ classCasts = {
     [11605] = 1.5, -- Slam
 
     [20904] = 3, -- Aimed Shot
+    [14290] = .2, -- Multi-Shot
+
     [1002] = 2, -- Eyes of the Beast
     [2641] = 5, -- Dismiss pet
     [982] = 10, -- Revive Pet
@@ -784,6 +800,8 @@ end
 lib.NPCSpellsTimer = C_Timer.NewTimer(6.5, processNPCSpellTable)
 
 NPCSpells = {
+
+    14290,
     10215,
     16587,
     16651,
