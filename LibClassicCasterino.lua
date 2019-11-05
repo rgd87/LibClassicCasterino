@@ -799,8 +799,6 @@ end
 lib.NPCSpellsTimer = C_Timer.NewTimer(6.5, processNPCSpellTable)
 
 NPCSpells = {
-
-    14290,
     10215,
     16587,
     16651,
