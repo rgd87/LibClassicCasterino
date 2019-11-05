@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 24
+local MAJOR, MINOR = "LibClassicCasterino", 25
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -55,6 +55,7 @@ local castTimeCache = {}
 local castTimeCacheStartTimes = setmetatable({}, { __mode = "v" })
 
 local AIMED_SHOT = GetSpellInfo(19434)
+local MULTI_SHOT = GetSpellInfo(25294)
 local castingAimedShot = false
 local playerGUID = UnitGUID("player")
 
@@ -117,7 +118,7 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
     end
 
     if castType == "CAST" then
-        if srcGUID == playerGUID and spellName == AIMED_SHOT then
+        if srcGUID == playerGUID and spellName == AIMED_SHOT or spellName == MULTI_SHOT then
             castingAimedShot = true
             movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
             callbacks:Fire("UNIT_SPELLCAST_START", "player")
@@ -309,7 +310,7 @@ function lib:UnitCastingInfo(unit)
             local duration = endTimeMS - startTimeMS
             endTimeMS = startTimeMS + duration * slowdown
         end
-        
+
         if castType == "CAST" and endTimeMS > GetTime()*1000 then
             local castID = nil
             return name, nil, icon, startTimeMS, endTimeMS, nil, castID, false, spellID
@@ -509,6 +510,7 @@ classCasts = {
     [11605] = 1.5, -- Slam
 
     [20904] = 3, -- Aimed Shot
+    [25294] = 0.5, -- Multi-Shot
     [1002] = 2, -- Eyes of the Beast
     [2641] = 5, -- Dismiss pet
     [982] = 10, -- Revive Pet
