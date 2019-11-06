@@ -523,6 +523,7 @@ classCasts = {
 
     [8690] = 10, -- Hearthstone
     [4068] = 1, -- Iron Grenade
+    [20589] = 0.5, -- Escape Artist
 
     -- Munts do not generate SPELL_CAST_START
     -- [8394] = 3, -- Striped Frostsaber
