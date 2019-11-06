@@ -120,7 +120,7 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
     end
 
     if castType == "CAST" then
-        if srcGUID == playerGUID and spellName == AIMED_SHOT or spellName == MULTI_SHOT then
+        if srcGUID == playerGUID and (spellName == AIMED_SHOT or spellName == MULTI_SHOT) then
             castingAimedShot = true
             movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
             if spellName == MULTI_SHOT then
