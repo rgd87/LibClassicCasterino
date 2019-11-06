@@ -114,7 +114,9 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
     end
 
     if isSrcEnemyPlayer then
-        movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
+        if spellID ~= 4068 then --Iron Grenade
+            movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
+        end
     end
 
     if castType == "CAST" then
