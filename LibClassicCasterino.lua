@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 25
+local MAJOR, MINOR = "LibClassicCasterino", 26
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -121,6 +121,9 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
         if srcGUID == playerGUID and spellName == AIMED_SHOT or spellName == MULTI_SHOT then
             castingAimedShot = true
             movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
+            if spellName == MULTI_SHOT then
+                casters[srcGUID][5] = startTime + 500
+            end
             callbacks:Fire("UNIT_SPELLCAST_START", "player")
         end
         FireToUnits("UNIT_SPELLCAST_START", srcGUID)
