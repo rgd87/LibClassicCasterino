@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 26
+local MAJOR, MINOR = "LibClassicCasterino", 27
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -114,7 +114,7 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
     end
 
     if isSrcEnemyPlayer then
-        if spellID ~= 4068 then --Iron Grenade
+        if not (spellID == 4068 or spellID == 19769) then -- Iron Grenade, Thorium Grenade
             movecheckGUIDs[srcGUID] = MOVECHECK_TIMEOUT
         end
     end
@@ -523,6 +523,7 @@ classCasts = {
 
     [8690] = 10, -- Hearthstone
     [4068] = 1, -- Iron Grenade
+    [19769] = 1, -- Thorium Grenade
     [20589] = 0.5, -- Escape Artist
 
     -- Munts do not generate SPELL_CAST_START
