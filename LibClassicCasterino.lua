@@ -105,7 +105,7 @@ local function CastStart(srcGUID, castType, spellName, spellID, overrideCastTime
     end
     local decreased = talentDecreased[spellID]
     if decreased then
-        castTime = castTime - decreased
+        castTime = castTime - decreased*1000
     end
     if overrideCastTime then
         castTime = overrideCastTime
