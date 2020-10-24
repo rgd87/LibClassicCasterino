@@ -152,11 +152,11 @@ local function CastStop(srcGUID, castType, suffix, suffix2 )
         movecheckGUIDs[srcGUID] = nil
 
         if castType == "CAST" then
+            local event = "UNIT_SPELLCAST_"..suffix
             if srcGUID == playerGUID and castingAimedShot then
                 castingAimedShot = false
                 callbacks:Fire(event, "player")
             end
-            local event = "UNIT_SPELLCAST_"..suffix
             FireToUnits(event, srcGUID)
             if suffix2 then
                 FireToUnits("UNIT_SPELLCAST_"..suffix2, srcGUID)
