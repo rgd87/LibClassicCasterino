@@ -4,7 +4,7 @@ Author: d87
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicCasterino", 36
+local MAJOR, MINOR = "LibClassicCasterino", 37
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -498,7 +498,6 @@ classCasts = {
     [10054] = 3, -- Conjure Mana Ruby
     [10140] = 3, -- Conjure Water
     [12826] = 1.5, -- Polymorph
-    [28270] = 1.5, -- Polymorph: Cow
     [25306] = 3.5, -- Fireball
     [10216] = 3, -- Flamestrike
     [10207] = 1.5, -- Scorch
@@ -819,7 +818,7 @@ local function processNPCSpellTable()
     counter = 0
     local index, id = next(NPCSpells, prevID)
     while (id and counter < 150) do
-        NPCspellNameToID[GetSpellInfo(id)] = id
+        NPCspellNameToID[GetSpellInfo(id) or id] = id
 
         counter = counter + 1
         prevID = index
