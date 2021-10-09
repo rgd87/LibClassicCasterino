@@ -362,7 +362,7 @@ function lib:UnitCastingInfo(unit)
 
         if castType == "CAST" and endTimeMS > GetTime()*1000 then
             local castID = nil
-            return name, nil, icon, startTimeMS, endTimeMS, nil, castID, false, spellID
+            return name, nil, icon, startTimeMS, endTimeMS, nil, castID, spellID
         end
     end
 end
