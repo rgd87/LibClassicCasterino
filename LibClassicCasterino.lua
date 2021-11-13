@@ -2,17 +2,13 @@
 LibClassicCasterino
 Author: d87
 --]================]
-if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
-
-local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
-local isClassic = apiLevel <= 2
-local isVanilla = apiLevel == 1
-local isBC = apiLevel == 2
+local isVanilla = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local isBC = (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC)
+if not isVanilla then return end
 
 local MAJOR, MINOR = "LibClassicCasterino", 37
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
-
 
 lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 
@@ -28,14 +24,26 @@ lib.movecheckGUIDs = lib.movecheckGUIDs or {}
 local movecheckGUIDs = lib.movecheckGUIDs
 local MOVECHECK_TIMEOUT = 4
 
+local ipairs = ipairs
+local max = math.max
+local pairs = pairs
+local select = select
+local strsplit = strsplit
+
 local UnitGUID = UnitGUID
 local bit_band = bit.band
 
-local GetSpellInfo = GetSpellInfo
-local GetTime = GetTime
+local C_Timer_After = C_Timer.After
+local C_Timer_NewTimer = C_Timer.NewTimer
 local CastingInfo = CastingInfo
 local ChannelInfo = ChannelInfo
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
+local GetSpellInfo = GetSpellInfo
+local GetTime = GetTime
 local GetUnitSpeed = GetUnitSpeed
+local UnitAura = UnitAura
+local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
 local UnitIsUnit = UnitIsUnit
 
 local COMBATLOG_OBJECT_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
@@ -332,7 +340,7 @@ local function GetCastSlowdown(unit)
         local name, _, _, _, _, _, _, _, _, spellID = UnitAura(unit, i, "HARMFUL")
         if not name then return negativeEx end
         if castTimeIncreases[spellID] then
-            negativeEx = math.max(negativeEx, castTimeIncreases[spellID])
+            negativeEx = max(negativeEx, castTimeIncreases[spellID])
         end
     end
     return negativeEx
@@ -845,11 +853,11 @@ local function processNPCSpellTable()
         index, id = next(NPCSpells, prevID)
     end
     if (id) then
-        C_Timer.After(1, processNPCSpellTable)
+        C_Timer_After(1, processNPCSpellTable)
     end
 end
 if isVanilla then
-    lib.NPCSpellsTimer = C_Timer.NewTimer(6.5, processNPCSpellTable)
+    lib.NPCSpellsTimer = C_Timer_NewTimer(6.5, processNPCSpellTable)
 end
 
 NPCSpells = {
